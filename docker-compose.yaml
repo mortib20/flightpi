@@ -1,9 +1,14 @@
 services:
-  readsb:
+  readsb-main:
     build: ./readsb
     restart: unless-stopped
     environment:
-      - LAT=50
-      - LON=10
+      - READSB_LAT=${LAT}
+      - READSB_LON=${LON}
+      - READSB_DEVICE=0
+      - READSB_GAIN=-10
+    entrypoint: ./readsb/main.sh
+    volumes:
+    - "/run/readsb/:/run/readsb/"
     devices:
-    - "/dev/bus/usb/xxx/xxx:/dev/bus/usb/xxx/xxx"
+    - "/dev/bus/usb/:/dev/bus/usb/"
