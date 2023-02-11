@@ -7,6 +7,8 @@ FROM alpine:latest as main
 
 ENV DEVICE=0 GAIN=-10 LAT=50 LON=10
 
+EXPOSE 30002 30003 30004 30005 30104
+
 WORKDIR /srv
 COPY --from=build /readsb/readsb /usr/local/bin
 RUN apk add --no-cache libusb librtlsdr zstd-dev && rm -Rf /var/cache/*
@@ -21,4 +23,5 @@ CMD readsb --device-type rtlsdr \
 --net-sbs-port 30003 \
 --net-bi-port 30004,30104 \
 --net-bo-port 30005 \
---json-location-accuracy 2 --range-outline-hours 24
+--json-location-accuracy 2 --range-outline-hours 24 \
+--write-json /srv

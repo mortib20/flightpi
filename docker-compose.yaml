@@ -5,3 +5,5 @@ services:
     environment:
       - LAT=50
       - LON=10
+    devices:
+    - "/dev/bus/usb/xxx/xxx:/dev/bus/usb/xxx/xxx"
