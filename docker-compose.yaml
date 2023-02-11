@@ -1,0 +1,7 @@
+services:
+  readsb:
+    build: ./readsb
+    restart: unless-stopped
+    environment:
+      - LAT=50
+      - LON=10
