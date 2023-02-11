@@ -14,8 +14,9 @@ services:
     - "30004"
     - "30005"
     - "30104"
-    command: ${CMD}
+    command: ./main.sh
     volumes:
     - "/run/readsb/:/run/readsb/"
+    - "./readsb/main.sh:/run/readsb/main.sh"
     devices:
     - "/dev/bus/usb/:/dev/bus/usb/"
