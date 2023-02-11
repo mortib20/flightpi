@@ -5,7 +5,7 @@ services:
     environment:
       - READSB_LAT=${LAT}
       - READSB_LON=${LON}
-      - READSB_DEVICE=0
+      - READSB_DEVICE=1
       - READSB_GAIN=-10
     expose:
     - "30001"
@@ -14,9 +14,23 @@ services:
     - "30004"
     - "30005"
     - "30104"
-    command: ./main.sh
+    command: sh -c ./main.sh
     volumes:
     - "/run/readsb/:/run/readsb/"
     - "./readsb/main.sh:/run/readsb/main.sh"
+    devices:
+    - "/dev/bus/usb/:/dev/bus/usb/"
+
+  readsb-second:
+    build: ./readsb
+    restart: unless-stopped
+    environment:
+      - READSB_LAT=${LAT}
+      - READSB_LON=${LON}
+      - READSB_DEVICE=0
+      - READSB_GAIN=-10
+    command: sh -c ./second.sh
+    volumes:
+    - "./readsb/second.sh:/run/readsb/second.sh"
     devices:
     - "/dev/bus/usb/:/dev/bus/usb/"
