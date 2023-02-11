@@ -7,6 +7,13 @@ services:
       - READSB_LON=${LON}
       - READSB_DEVICE=0
       - READSB_GAIN=-10
+    expose:
+    - "30001"
+    - "30002"
+    - "30003"
+    - "30004"
+    - "30005"
+    - "30104"
     entrypoint: ./readsb/main.sh
     volumes:
     - "/run/readsb/:/run/readsb/"
