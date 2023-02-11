@@ -5,11 +5,10 @@ RUN make -C readsb -E RTLSDR=yes -E DISABLE_INTERACTIVE=yes -E OPTIMIZE="-march=
 
 FROM alpine:latest as main
 
-ENV DEVICE=0 GAIN=-10 LAT=50 LON=10
-
+ENV DEVICE=0 GAIN=-10 LAT=50 LON=10 EXTRA=--quiet
 EXPOSE 30002 30003 30004 30005 30104
 
-WORKDIR /srv
+WORKDIR /run/readsb
 COPY --from=build /readsb/readsb /usr/local/bin
 RUN apk add --no-cache libusb librtlsdr zstd-dev && rm -Rf /var/cache/*
 CMD readsb --device-type rtlsdr \
@@ -24,4 +23,5 @@ CMD readsb --device-type rtlsdr \
 --net-bi-port 30004,30104 \
 --net-bo-port 30005 \
 --json-location-accuracy 2 --range-outline-hours 24 \
---write-json /srv
+--write-json /run/readsb \
+$EXTRA
