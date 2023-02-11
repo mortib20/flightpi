@@ -8,4 +8,4 @@ FROM alpine:latest as main
 WORKDIR /run/readsb
 COPY --from=build /readsb/readsb /usr/local/bin
 RUN apk add --no-cache libusb librtlsdr zstd-dev && rm -Rf /var/cache/*
-CMD [ "readsb" ]
+ENTRYPOINT [ "readsb" ]

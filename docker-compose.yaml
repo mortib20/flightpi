@@ -14,7 +14,7 @@ services:
     - "30004"
     - "30005"
     - "30104"
-    entrypoint: ./readsb/main.sh
+    command: ${CMD}
     volumes:
     - "/run/readsb/:/run/readsb/"
     devices:
