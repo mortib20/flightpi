@@ -18,6 +18,7 @@ services:
     volumes:
     - "/run/readsb/:/run/readsb/"
     - "./readsb/main.sh:/run/readsb/main.sh"
+    - "/usr/share/zoneinfo/Europe/Berlin:/etc/localtime"
     devices:
     - "/dev/bus/usb/:/dev/bus/usb/"
 
@@ -32,5 +33,6 @@ services:
     command: sh -c ./second.sh
     volumes:
     - "./readsb/second.sh:/run/readsb/second.sh"
+    - "/usr/share/zoneinfo/Europe/Berlin:/etc/localtime"
     devices:
     - "/dev/bus/usb/:/dev/bus/usb/"
