@@ -42,5 +42,5 @@ services:
       - readsb-main
     build: ./fr24feed
     restart: unless-stopped
-    #volumes:
-    #  - "/etc/fr24feed.ini:/etc/fr24feed.ini"
+    volumes:
+      - "./fr24feed/fr24feed.ini:/etc/fr24feed.ini"
