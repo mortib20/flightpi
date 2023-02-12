@@ -38,6 +38,8 @@ services:
     - "/dev/bus/usb/:/dev/bus/usb/"
 
   fr24feed:
+    depends_on:
+      - readsb-main
     build: ./fr24feed
     restart: unless-stopped
     #volumes:
