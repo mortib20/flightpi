@@ -36,3 +36,9 @@ services:
     - "/usr/share/zoneinfo/Europe/Berlin:/etc/localtime"
     devices:
     - "/dev/bus/usb/:/dev/bus/usb/"
+
+  fr24feed:
+    build: ./fr24feed
+    restart: unless-stopped
+    #volumes:
+    #  - "/etc/fr24feed.ini:/etc/fr24feed.ini"
