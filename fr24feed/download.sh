@@ -17,6 +17,3 @@ if [ "$ARCH" == "aarch64" ]; then
     wget -c https://repo-feed.flightradar24.com/rpi_binaries/fr24feed_1.0.34-0_armhf.tgz -O - | tar -xz
     mv fr24feed_armhf fr24feed
 fi
-
-mv fr24feed/fr24feed /usr/local/bin
-rm -rf fr24feed
