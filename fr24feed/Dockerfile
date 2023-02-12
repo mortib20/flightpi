@@ -2,8 +2,9 @@ FROM debian:latest
 
 WORKDIR /srv
 COPY ./download.sh ./
-COPY ./entry.sh ./
+COPY ./fr24feed.ini /etc/fr24feed.ini
 
 RUN apt-get update -y && apt-get install wget -y
 RUN ./download.sh
-ENTRYPOINT [ "entry.sh" ]
+RUN mkdir /var/log/fr24feed
+CMD [ "fr24feed" ]
