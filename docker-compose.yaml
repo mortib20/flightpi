@@ -118,7 +118,7 @@ services:
   # FR24FEED
   fr24feed:
     container_name: fr24feed
-    build: ./fr24feed
+    build: ./build/fr24feed
     restart: unless-stopped
     depends_on:
       - readsb-server
