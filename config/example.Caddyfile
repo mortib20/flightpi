@@ -1,0 +1,121 @@
+{
+                email CHANGE_ME
+                admin off
+}
+
+(tar1090) {
+        encode /tar1090/* gzip
+
+        redir /tar1090 /tar1090/
+
+        handle_path /tar1090/* {
+                root * /usr/local/share/tar1090/html
+
+                handle /images/* {
+                        header Cache-Control "public, max-age=1209600"
+                }
+
+                handle /flags-tiny/* {
+                        header Cache-Control "public, max-age=1209600"
+                }
+
+                handle /config.js {
+                        header Cache-Control "public, must-revalidate"
+                }
+
+                handle /db-*/*.js {
+                        header Cache-Control "public, max-age=1209600"
+                        header Content-Encoding "gzip"
+                }
+
+                handle /libs/* {
+                        header Cache-Control "public, max-age=1209600"
+                }
+
+                handle /style.css {
+                        header Cache-Control "public, max-age=1209600"
+                }
+
+                file_server browse
+        }
+
+        handle_path /tar1090/data/* {
+                root * /run/readsb
+                
+                handle /*.binCraft {
+                        header Cache-Control "no-cache"
+                        header Content-Encoding "gzip"
+                }
+
+                handle /aircraft.json {
+                        header Cache-Control "public, max-age=0"
+                }
+
+                handle /globe.* {
+                        header Cache-Control "public, max-age=0"
+                        header Content-Encoding "gzip"
+                }
+
+                handle /traces/* {
+                        header Cache-Control "public, max-age=2"
+                        header Content-Encoding "gzip"
+                }
+
+                file_server browse
+        }
+
+        handle_path /tar1090/chunks/* {
+                root * /run/tar1090
+
+                handle /chunk_*.gz {
+                        header Access-Control-Allow-Origin "*"
+                        header Cache-Control "public, max-age=1209600"
+                        header Content-Encoding "gzip"
+                        header Content-Type "application/json"
+                }
+
+                handle /current_*.gz {
+                        header Access-Control-Allow-Origin "*"
+                        header Cache-Control "public, max-age=0"
+                        header Content-Encoding "gzip"
+                        header Content-Type "application/json"
+                }
+
+                handle /978.json {
+                        header Cache-Control "public, max-age=0"
+                }
+
+                file_server browse
+        }
+
+        handle_path /tar1090/globe_history/* {
+                root * /var/globe_history
+
+                handle /glob_history/* {
+                        header Cache-Control "public, max-age=3600"
+                        header Content-Encoding "gzip"
+                }
+
+                file_server browse
+        }
+        
+        
+        handle_path /tar1090/aircraft_sil/* {
+                root * /usr/local/share/tar1090/aircraft_sil
+
+                handle /* {
+                        header Cache-Control "public, max-age=1209600"
+                }
+
+                file_server browse
+        }
+
+        handle_path /tar1090/osm_tiles_offline/* {
+                root * /usr/local/share/osm_tiles_offline
+                file_server browse
+        }
+}
+
+* {
+        import tar1090
+}

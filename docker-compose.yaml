@@ -1,0 +1,218 @@
+volumes:
+  caddy_data:
+    external: true
+  caddy_config:
+    external: true
+
+services:
+  # Caddy
+  caddy:
+    container_name: caddy
+    image: caddy
+    restart: unless-stopped
+    ports:
+      - 443:443/udp
+      - 443:443
+      - 80:80
+    volumes:
+      - ${TZ}:/etc/localtime
+      - ./config/Caddyfile:/etc/caddy/Caddyfile
+      - /usr/local/share/tar1090/html/:/usr/local/share/tar1090/html/
+      - /run/readsb/:/run/readsb/
+      - /run/tar1090/:/run/tar1090/
+      - caddy_data:/data
+      - caddy_config:/config
+
+  # Node_Exporter
+  node_exporter:
+    container_name: node_exporter
+    image: quay.io/prometheus/node-exporter:latest
+    restart: unless-stopped
+    ports:
+      - 9100:9100
+    command:
+      - --path.rootfs=/host
+      - --collector.textfile.directory=/run/readsb/
+    pid: host
+    volumes:
+      - ${TZ}:/etc/localtime
+      - /:/host:ro,rslave
+      - /run/readsb/:/run/readsb/:ro
+
+  # Server every readsb-antenna-X container sends data to
+  readsb-server:
+    container_name: readsb-server
+    build: ./build/readsb
+    restart: unless-stopped
+    entrypoint: /script/readsb-server.sh
+    environment:
+      - READSB_LAT=${LAT}
+      - READSB_LON=${LON}
+    ports:
+    - "30001:30001"
+    - "30002:30002"
+    - "30003:30003"
+    - "30004:30004"
+    - "30005:30005"
+    - "30104:30104"
+    volumes:
+    - ${TZ}:/etc/localtime
+    - ./entrypoint/readsb-server.sh:/script/readsb-server.sh
+    - /run/readsb/:/run/readsb/
+
+  # 1th antenna
+  readsb-antenna-1:
+    container_name: readsb-antenna-1
+    build: ./build/readsb
+    restart: unless-stopped
+    entrypoint: /script/readsb-antenna.sh
+    depends_on:
+      - readsb-server
+    environment:
+      - READSB_LAT=${LAT}
+      - READSB_LON=${LON}
+      - READSB_DEVICE=1
+      - READSB_GAIN=40
+    volumes:
+    - ${TZ}:/etc/localtime
+    - ./entrypoint/readsb-antenna.sh:/script/readsb-antenna.sh
+    devices:
+    - "/dev/bus/usb/001/004:/dev/bus/usb/001/004"
+
+  # 2th antenna
+  readsb-antenna-2:
+    container_name: readsb-antenna-2
+    build: ./build/readsb
+    restart: unless-stopped
+    entrypoint: /script/readsb-antenna.sh
+    depends_on:
+      - readsb-server
+    environment:
+      - READSB_LAT=${LAT}
+      - READSB_LON=${LON}
+      - READSB_DEVICE=0
+      - READSB_GAIN=20
+    volumes:
+    - ${TZ}:/etc/localtime
+    - ./entrypoint/readsb-antenna.sh:/script/readsb-antenna.sh
+    devices:
+    - "/dev/bus/usb/001/005:/dev/bus/usb/001/005"
+
+  # FEEDER
+  feeder:
+    container_name: feeder
+    build: ./build/readsb
+    restart: unless-stopped
+    entrypoint: /script/readsb-feed.sh
+    depends_on:
+      - readsb-server
+    environment:
+      - READSB_LAT=${LAT}
+      - READSB_LON=${LON}
+      - READSB_FEED=--net-connector ${ADSBLOL_FEED} --net-connector ${ADSBX_FEED} --net-connector ${ADSBFI_FEED} --net-connector ${ADSBONE_FEED} --net-connector ${PLANESP_FEED}
+    volumes:
+      - ${TZ}:/etc/localtime
+      - ./entrypoint/readsb-feed.sh:/script/readsb-feed.sh
+      - ./uuid:/script/uuid
+
+  # FR24FEED
+  fr24feed:
+    container_name: fr24feed
+    build: ./fr24feed
+    restart: unless-stopped
+    depends_on:
+      - readsb-server
+    volumes:
+      - "./config/fr24feed.ini:/etc/fr24feed.ini"
+
+  # ADSBLOL MLAT
+  adsblol-mlat:
+    container_name: adsblol-mlat
+    build: ./build/mlat-client
+    restart: unless-stopped
+    entrypoint: /script/mlat-client.sh
+    depends_on:
+      - feeder
+    environment:
+      - MLAT_LAT=${LAT}
+      - MLAT_LON=${LON}
+      - MLAT_ALT=${ALT}
+      - MLAT_USER=${MLAT_USER}
+      - MLAT_SERVER=${ADSBLOL_MLAT}
+    volumes:
+      - ${TZ}:/etc/localtime
+      - ./entrypoint/mlat-client.sh:/script/mlat-client.sh
+
+  # ADSBX MLAT
+  adsbx-mlat:
+    container_name: adsbx-mlat
+    build: ./build/mlat-client
+    restart: unless-stopped
+    entrypoint: /script/mlat-client.sh
+    depends_on:
+      - feeder
+    environment:
+      - MLAT_LAT=${LAT}
+      - MLAT_LON=${LON}
+      - MLAT_ALT=${ALT}
+      - MLAT_USER=${MLAT_USER}
+      - MLAT_SERVER=${ADSBX_MLAT}
+    volumes:
+      - ${TZ}:/etc/localtime
+      - ./entrypoint/mlat-client.sh:/script/mlat-client.sh
+
+  # ADSBFI MLAT
+  adsbfi-mlat:
+    container_name: adsbfi-mlat
+    build: ./build/mlat-client
+    restart: unless-stopped
+    entrypoint: /script/mlat-client.sh
+    depends_on:
+      - feeder
+    environment:
+      - MLAT_LAT=${LAT}
+      - MLAT_LON=${LON}
+      - MLAT_ALT=${ALT}
+      - MLAT_USER=${MLAT_USER}
+      - MLAT_SERVER=${ADSBFI_MLAT}
+    volumes:
+      - ${TZ}:/etc/localtime
+      - ./entrypoint/mlat-client.sh:/script/mlat-client.sh
+
+  # ADSBONE MLAT
+  adsbone-mlat:
+    container_name: adsbone-mlat
+    build: ./build/mlat-client
+    restart: unless-stopped
+    entrypoint: /script/mlat-client.sh
+    depends_on:
+      - feeder
+    environment:
+      - MLAT_LAT=${LAT}
+      - MLAT_LON=${LON}
+      - MLAT_ALT=${ALT}
+      - MLAT_USER=${MLAT_USER}
+      - MLAT_SERVER=${ADSBONE_MLAT}
+    volumes:
+      - ${TZ}:/etc/localtime
+      - ./entrypoint/mlat-client.sh:/script/mlat-client.sh
+      - ./uuid:/script/uuid
+
+  # PLANESP MLAT
+  planesp-mlat:
+    container_name: planesp-mlat
+    build: ./build/mlat-client
+    restart: unless-stopped
+    entrypoint: /script/mlat-client.sh
+    depends_on:
+      - feeder
+    environment:
+      - MLAT_LAT=${LAT}
+      - MLAT_LON=${LON}
+      - MLAT_ALT=${ALT}
+      - MLAT_USER=${MLAT_USER}
+      - MLAT_SERVER=${PLANESP_MLAT}
+    volumes:
+      - ${TZ}:/etc/localtime
+      - ./entrypoint/mlat-client.sh:/script/mlat-client.sh
+      - ./uuid:/script/uuid
