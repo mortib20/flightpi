@@ -1,2 +1,0 @@
-#!/bin/sh
-source ./bin/activate && mlat-client --input-connect readsb-server:30005 --lat $MLAT_LAT --lon $MLAT_LON --alt $MLAT_ALT --user $MLAT_USER --server $MLAT_SERVER --results beast,connect,readsb-server:30004
